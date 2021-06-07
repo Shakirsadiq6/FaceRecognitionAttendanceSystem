@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Upload</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+
+        <strong>Upload known faces:</strong><br><br>
+        <label>Employee ID:</label>
+        <input type="text" name="eid" maxlength="10" class="field" required pattern="[a-zA-Z0-9]+" />
+        <br><br>
+        <label>Employee Name:</label>
+        <input type="text" name="ename" maxlength="50" class="field" required pattern="[a-zA-Z\s]+" />
+        <br><br>
+        <input id="file-picker" type="file" name="file" accept="image/*" required='required'>
+        <div id="msg"></div>
+        <br>
+        <input type="submit" value="Upload" name="encoding-button">
+        <br><br><br><br>
+    </form>
+    <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+
+        <strong>Upload unknown faces:</strong><br><br>
+        <input id="file-picker" type="file" name="file" accept="image/*" required='required'>
+        <div id="msg"></div>
+        <br>
+        <input type="submit" value="Recognise" name="recognise-button">
+    </form>
+</body>
+
+</html>

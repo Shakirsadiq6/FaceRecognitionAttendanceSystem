@@ -1,0 +1,1 @@
+When user uploads the unknown face from the API, it will get stored into this folder in order to recognise the face and after recognition it will be automatically deleted from the folder.
