@@ -81,18 +81,29 @@ def upload():
                 known_faces = []
                 known_names = []
 
-                for name in os.listdir(KNOWN_FACES_DIR):
-                    for filename in os.listdir(f"{KNOWN_FACES_DIR}/{name}"):
-                        image = face_recognition.load_image_file(f"{KNOWN_FACES_DIR}/{name}/{filename}")
-                        encoding = face_recognition.face_encodings(image)[0]
-                        known_faces.append(encoding)
-                        known_names.append(name)
-
-                data = {"encodings": known_faces, "names": known_names}
-
-                encoded = pickle.dumps(data)
+                for filename in os.listdir(f"{KNOWN_FACES_DIR}/"+ename):
+                    image = face_recognition.load_image_file(f"{KNOWN_FACES_DIR}/"+ename+f"/{filename}")
+                    encoding = face_recognition.face_encodings(image)[0]
+                    known_faces.append(encoding)
+                    known_names.append(ename)
+                    
+                #Storing Images into the DB
+                if db.pickle_data.count_documents({}) == 0:
+                    data = {"encodings": known_faces, "names": known_names}
+                    encoded = pickle.dumps(data)
+                    employee_data = {"Pickle File": encoded}
+                    db.pickle_data.insert_one(employee_data)
+                else:
+                    for record in db.pickle_data.find({}, {"_id": 0, "Pickle File": 1}):
+                        data = pickle.loads(record["Pickle File"])
+                        data['encodings'].extend(known_faces)
+                        data['names'].extend(known_names)
+                        encoded = pickle.dumps(data)
+                        db.pickle_data.delete_many({})
+                        employee_data = {"Pickle File": encoded}
+                        db.pickle_data.insert_one(employee_data)
                 
-                #Storing in the DB
+                #Storing paths into the DB
                 employee_original_image_path = 'employee_images/original_images/'+imagename
                 employee_cropped_image_path = 'employee_images/cropped_images/crop'+imagename
                 employee_BW_image_path = 'employee_images/B&W_images/b&w'+imagename
@@ -103,10 +114,10 @@ def upload():
                     "Original Image Path": employee_original_image_path,
                     "Cropped Image Path": employee_cropped_image_path,
                     "B&W Image Path": employee_BW_image_path,
-                    "Known Image Path": employee_image_path,
-                    "Pickle File": encoded
+                    "Known Image Path": employee_image_path
                 }
                 db.employee_faces.insert_one(employee_details)
+                
                 end_encoding =time.time()
                 print(f"Total runtime for encoding is {end_encoding - begin_encoding}")
                 return "Data stored successfully!"
@@ -159,7 +170,7 @@ def upload():
                 
                 #Loading encodings from DB
                 print("Loading encodings...")
-                for record in col.find({}, {"_id": 0, "Pickle File": 1}):
+                for record in db.pickle_data.find({}, {"_id": 0, "Pickle File": 1}):
                     data = pickle.loads(record["Pickle File"])
 
                 for filename in os.listdir(UNKNOWN_FACES_DIR):
@@ -187,9 +198,9 @@ def upload():
                             }
                             name = max(counts, key=counts.get)
                             names.append(name)
-                            os.remove(f"{UNKNOWN_FACES_DIR}/{filename}")
                             end_recognition =time.time()
                             print(f"Total runtime for recognising is {end_recognition - begin_recognition}")
+                            os.remove(f"{UNKNOWN_FACES_DIR}/{filename}")
                             return jsonify(result), 200
                         else:
                             print("Face doesn't recognized!")
@@ -202,4 +213,4 @@ def upload():
                             return jsonify(result), 400
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5555)
+    app.run(debug=True)
