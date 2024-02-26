@@ -20,6 +20,21 @@ FRAME_THICKNESS = 3
 FONT_THICKNESS = 2
 MODEL = "hog" #"cnn"
 
+if not os.path.exists(KNOWN_FACES_DIR):
+    os.makedirs(KNOWN_FACES_DIR)
+if not os.path.exists(UNKNOWN_FACES_DIR):
+    os.makedirs(UNKNOWN_FACES_DIR)
+if not os.path.exists("employee_images"):
+    os.makedirs("employee_images")
+if not os.path.exists("employee_images/original_images"):
+    os.makedirs("employee_images/original_images")
+if not os.path.exists("employee_images/cropped_images"):
+    os.makedirs("employee_images/cropped_images")
+if not os.path.exists("employee_images/unknown_images"):
+    os.makedirs("employee_images/unknown_images")
+if not os.path.exists("employee_images/B&W_images"):
+    os.makedirs("employee_images/B&W_images")
+
 @app.route("/")
 def index():
     return render_template("index.html")
